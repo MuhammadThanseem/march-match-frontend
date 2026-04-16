@@ -328,7 +328,7 @@ export default function GameDetailsPage() {
                 Payout Checkpoints
               </h3>
               <span className="text-xs font-semibold text-green-400 bg-green-900/30 px-2 py-1 rounded-md">
-                Pot: ${game.potAmount}
+                Pot: ${game.totalSlots * 10 + 10}
               </span>
             </div>
             <div className="relative pl-2">

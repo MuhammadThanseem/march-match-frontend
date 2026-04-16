@@ -147,7 +147,7 @@ export default function HistoryPage() {
               <div>
                 <p className="text-xs text-gray-400">Total Winnings</p>
                 <h2 className="text-3xl font-teko text-green-400">
-                  ${summary?.totalWinnings?.toFixed(2) ?? 0.00}
+                  ${summary?.totalWinnings?.toFixed(2) ?? 0.0}
                 </h2>
               </div>
               <div className="text-right">
@@ -251,6 +251,8 @@ export default function HistoryPage() {
 
           <section className="space-y-4">
             {filteredHistory.map((game, index) => {
+              console.log(game.checkpoints);
+
               const isOpen = openIndex === index;
 
               return (
@@ -314,11 +316,11 @@ export default function HistoryPage() {
 
                   {/* ACCORDION CONTENT */}
                   <div
-                    className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                    className={`transition-all duration-500 ease-in-out ${
                       isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                    } overflow-hidden`}
                   >
-                    <div className="p-4 bg-[#0A0E17]/40">
+                    <div className="p-4 bg-[#0A0E17]/40 max-h-[500px] overflow-y-auto">
                       {/* SUMMARY */}
                       <div className="flex justify-between mb-3">
                         <h4 className="text-xs text-gray-400">
