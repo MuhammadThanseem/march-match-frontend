@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import BottomNav from "../components/BottomNav";
 import httpService from "../utils/httpService";
 import RecentTransactions from "../components/Transaction";
+import toast from "react-hot-toast";
 
 type TransactionItemProps = {
   icon: string;
@@ -86,7 +87,7 @@ export default function WalletPage() {
   // Call Deposit/Withdraw API
   const handleSubmit = async () => {
     if (!amount || Number(amount) <= 0) {
-      alert("Enter a valid amount");
+      toast.error("Enter a valid amount");
       return;
     }
 
@@ -98,14 +99,14 @@ export default function WalletPage() {
       if (response.status === 200) {
         if (!modalType) return;
 
-        alert(`${modalType.toUpperCase()} Successful`);
+        toast.success(`${modalType.toUpperCase()} Successful`);
         closeModal();
         loadWallet();
         loadTransactions();
       }
     } catch (err) {
       console.log(err);
-      alert("Error processing transaction");
+      toast.error("Error processing transaction");
     }
   };
 

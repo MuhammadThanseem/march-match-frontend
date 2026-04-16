@@ -84,7 +84,7 @@ export default function WalletPage() {
   // Call Deposit/Withdraw API
   const handleSubmit = async () => {
     if (!amount || Number(amount) <= 0) {
-      alert("Enter a valid amount");
+      toast.error("Enter a valid amount");
       return;
     }
 

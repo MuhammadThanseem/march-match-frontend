@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import BottomNav from "@/app/components/BottomNav";
 import httpService from "@/app/utils/httpService";
+import toast from "react-hot-toast";
 
 export default function JoinGame() {
   const { id } = useParams();
@@ -67,7 +68,7 @@ export default function JoinGame() {
 
   const handleJoinGame = async () => {
     if (wallet.balance < game.entryFee) {
-      alert("Insufficient balance");
+      toast.error("Insufficient balance");
       return;
     }
 
@@ -79,7 +80,7 @@ export default function JoinGame() {
         router.push(`/game-details/${id}`);
       }
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Join failed");
+      toast.error(err?.response?.data?.message || "Join failed");
     } finally {
       setJoining(false);
     }
