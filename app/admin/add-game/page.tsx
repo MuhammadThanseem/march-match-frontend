@@ -79,13 +79,15 @@ export default function AddGamePage() {
     setMessage("");
 
     try {
+      const utcStartTime = new Date(formData.startTime).toISOString();
+
       const res: any = await httpService.post("/games/create", {
         ...formData,
+        startTime: utcStartTime, // ✅ IMPORTANT
         entryFee: Number(formData.entryFee),
         potAmount: Number(formData.potAmount),
         totalSlots: Number(formData.totalSlots),
 
-        // ✅ SEND ALL SCORES HERE
         scores: slotScores.map((slot: any) => ({
           sequence: slot.sequence,
           teamAScore: Number(slot.teamAScore),
