@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [error, setError] = useState("");
 
   interface LoginResponse {
     token: string;
@@ -29,7 +30,6 @@ export default function LoginPage() {
   }
 
   const handleLogin = async () => {
-    // Determine identifier based on selected login method
     const identifier =
       loginMethod === "phone"
         ? mobile.trim()
@@ -38,19 +38,23 @@ export default function LoginPage() {
           : "";
 
     if (!identifier || !password) {
-      return alert("Please fill all fields");
+      setError("Please fill all fields");
+      return;
     }
 
     setLoading(true);
+    setError(""); // clear previous error
+
     try {
       const response: any = await httpService.post<LoginResponse>(
         "/user/login",
         { identifier, password },
       );
+
       if (response.status == 200) {
-        // Save token and user info in localStorage
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
+
         if (
           response.data.user.role === "admin" ||
           response.data.user.role === "superadmin"
@@ -60,9 +64,12 @@ export default function LoginPage() {
           router.push("/home");
         }
       }
-      // TODO: redirect to dashboard or protected page
     } catch (err: any) {
       console.error(err);
+
+      // 🔥 handle backend error message
+      const message = "Invalid credentials. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -184,7 +191,10 @@ export default function LoginPage() {
                   type="tel"
                   placeholder="Enter your mobile number"
                   value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
+                  onChange={(e) => {
+                    setMobile(e.target.value);
+                    setError("");
+                  }}
                   className="w-full p-4 rounded-xl bg-white/10 text-white placeholder-gray-400 backdrop-blur-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 />
               ) : (
@@ -192,7 +202,10 @@ export default function LoginPage() {
                   type="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError("");
+                  }}
                   className="w-full p-4 rounded-xl bg-white/10 text-white placeholder-gray-400 backdrop-blur-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 />
               )}
@@ -201,12 +214,17 @@ export default function LoginPage() {
                 type="password"
                 placeholder="Enter your password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
                 className="w-full p-4 rounded-xl bg-white/10 text-white placeholder-gray-400 backdrop-blur-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </>
           )}
         </section>
+
+        {error && <div className="text-red-400 text-sm px-6 mt-2">{error}</div>}
 
         {/* CTA */}
         <section className="px-6 py-6">

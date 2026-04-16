@@ -12,6 +12,12 @@ export default function ProfilePage() {
   // Edit states
   const [editField, setEditField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [status, setStatus] = useState({
+    totalEarnings: 0,
+    totalWins: 0,
+    totalEntries: 0,
+    highestWin: 0,
+  });
   const router = useRouter();
 
   // Load user data from localStorage
@@ -20,6 +26,7 @@ export default function ProfilePage() {
     if (saved) {
       setUser(JSON.parse(saved));
     }
+    getUserStats();
   }, []);
 
   // Open Edit Modal
@@ -28,8 +35,19 @@ export default function ProfilePage() {
     setEditValue(user[field]);
   };
 
+  const getUserStats = async () => {
+    try {
+      const res: any = await httpService.get(`/user/stats`);
+      if (res.status === 200) {
+        setStatus(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user stats", err);
+    }
+  };
+
   // Save Updated Value
- const handleSave = async () => {
+  const handleSave = async () => {
     if (!editField) return;
 
     try {
@@ -124,7 +142,7 @@ export default function ProfilePage() {
                 <i className="fa-solid fa-sack-dollar text-green-500/50"></i>
               </div>
               <h3 className="text-3xl font-display font-bold text-green-500">
-                $1,240<span className="text-lg text-green-500/70">.50</span>
+                ${status.totalEarnings.toFixed(2)}
               </h3>
             </div>
 
@@ -136,7 +154,7 @@ export default function ProfilePage() {
                 </span>
                 <i className="fa-solid fa-trophy text-blue-500/50"></i>
               </div>
-              <h3 className="text-3xl font-display font-bold">48</h3>
+              <h3 className="text-3xl font-display font-bold">{status.totalWins}</h3>
             </div>
 
             <div className="stat-tile rounded-xl p-4 h-28 flex flex-col justify-between">
@@ -146,7 +164,7 @@ export default function ProfilePage() {
                 </span>
                 <i className="fa-solid fa-basketball text-blue-500/50"></i>
               </div>
-              <h3 className="text-3xl font-display font-bold">112</h3>
+              <h3 className="text-3xl font-display font-bold">{status.totalEntries}</h3>
             </div>
 
             <div className="stat-tile rounded-xl p-4 h-28 relative flex flex-col justify-between">
@@ -158,7 +176,7 @@ export default function ProfilePage() {
                 <i className="fa-solid fa-bolt text-purple-500/50"></i>
               </div>
               <h3 className="text-3xl font-display font-bold text-purple-500">
-                $110<span className="text-lg text-purple-500/70">.00</span>
+                ${status.highestWin.toFixed(2)}
               </h3>
             </div>
           </section>
