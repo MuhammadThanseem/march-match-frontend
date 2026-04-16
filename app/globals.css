@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.clean-card {
+  background: #111827;
+  border: 1px solid #1F2937;
+  border-radius: 20px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-pill {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-pill.active {
+  background: rgba(79, 70, 229, 0.2);
+  border-color: #4F46E5;
+}
+
+.stat-tile {
+  background: linear-gradient(145deg, #111827 0%, #0A0E17 100%);
+  border: 1px solid #1F2937;
+  transition: all 0.3s ease;
+}
+.stat-tile:hover {
+  border-color: #4F46E5;
+  box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
+}
+
+.share-card-preview {
+  background: linear-gradient(135deg, rgba(79,70,229,0.9) 0%, rgba(139,92,246,0.9) 100%);
+  border: 1px solid rgba(255,255,255,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.share-card-preview::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  transform: rotate(45deg);
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 20s linear infinite;
+}
