@@ -276,22 +276,30 @@ export default function JoinGame() {
 
           {/* Balance */}
           <section className="px-2">
-            <div className="flex justify-between mb-2">
-              <span className="text-gray-400">Current Balance</span>
-              <span>${wallet.balance}</span>
-            </div>
+            {!game?.joined ? (
+              <>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-400">Current Balance</span>
+                  <span>${wallet.balance}</span>
+                </div>
 
-            <div className="flex justify-between mb-2">
-              <span className="text-gray-400">Entry Fee</span>
-              <span className="text-orange-400">-${game.entryFee}</span>
-            </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-400">Entry Fee</span>
+                  <span className="text-orange-400">-${game.entryFee}</span>
+                </div>
 
-            <div className="border-t border-gray-800 my-3"></div>
+                <div className="border-t border-gray-800 my-3"></div>
 
-            <div className="flex justify-between">
-              <span>New Balance</span>
-              <span>${wallet.balance - game.entryFee}</span>
-            </div>
+                <div className="flex justify-between">
+                  <span>New Balance</span>
+                  <span>${(wallet?.balance || 0) - (game?.entryFee || 0)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-green-400 text-center py-3">
+                ✅ You have already joined this game
+              </div>
+            )}
           </section>
         </div>
 
