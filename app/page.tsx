@@ -46,7 +46,7 @@ export default function Home() {
       </div>
 
       {/* Main Container */}
-      <main className="relative z-10 w-full max-w-[375px] min-h-[840px] mx-auto flex flex-col px-6 py-12 justify-between">
+      <main className="relative z-10 w-full max-w-md mx-auto min-h-[840px] mx-auto flex flex-col px-6 py-12 justify-between">
         {/* Logo + Title */}
         <section className="flex flex-col items-center mt-8 animate-pulse">
           <div className="relative w-32 h-32 mb-6">

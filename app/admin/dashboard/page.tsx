@@ -166,10 +166,10 @@ export default function SuperAdminHomePage() {
 
   return (
     <>
-      <main className="relative z-10 w-full max-w-[375px] min-h-screen mx-auto flex flex-col bg-[#0A0E17] text-white overflow-hidden font-sans">
+      <main className="relative z-10 w-full max-w-md mx-auto min-h-screen mx-auto flex flex-col bg-[#0A0E17] text-white overflow-hidden font-sans">
         {/* =================== HEADER =================== */}
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 max-w-[375px] mx-auto px-5 pt-12 pb-4 flex justify-between items-center bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/5 z-50">
+        <header className="fixed top-0 left-0 right-0 max-w-md mx-auto px-5 pt-12 pb-4 flex justify-between items-center bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/5 z-50">
           <div className="flex items-center gap-3">
             <div className="relative">
               <Image

@@ -37,7 +37,6 @@ export default function GameDetailsPage() {
 
     const now = Date.now();
 
-    // Find next checkpoint (future one)
     const nextCheckpoint = checkpoints.find(
       (cp) => new Date(cp.startTime).getTime() > now,
     );
@@ -46,14 +45,27 @@ export default function GameDetailsPage() {
 
     const delay = new Date(nextCheckpoint.startTime).getTime() - now;
 
-    const timeout = setTimeout(() => {
+    let winnersTimeout: NodeJS.Timeout;
+
+    const checkpointTimeout = setTimeout(() => {
       console.log("⏱️ Checkpoint reached → refreshing");
+
+      // 1️⃣ Call checkpoint + game details immediately
       loadCheckpoints(id as string);
-      loadWinners(id as string);
       loadGameDetails(id as string);
+
+      // 2️⃣ Call winners AFTER 10 seconds
+      winnersTimeout = setTimeout(() => {
+        console.log("🏆 Loading winners after 10s");
+        loadWinners(id as string);
+        loadWallet();
+      }, 10000);
     }, delay);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(checkpointTimeout);
+      if (winnersTimeout) clearTimeout(winnersTimeout);
+    };
   }, [checkpoints, id]);
 
   useEffect(() => {
@@ -168,7 +180,7 @@ export default function GameDetailsPage() {
 
   return (
     <main className="w-full min-h-screen flex flex-col items-center justify-center text-white">
-      <div className="relative w-full max-w-[375px] h-screen flex flex-col bg-[#0A0E17] overflow-hidden shadow-2xl">
+      <div className="relative w-full max-w-md mx-auto h-screen flex flex-col bg-[#0A0E17] overflow-hidden shadow-2xl">
         {/* HEADER */}
         <header className="sticky top-0 z-20 flex justify-between items-center px-5 pt-12 pb-4 bg-[#0A0E17]/90 backdrop-blur-md border-b border-[#1F2937]">
           <div className="flex items-center gap-3">
@@ -368,7 +380,7 @@ export default function GameDetailsPage() {
                         )}
 
                         {cp.type === "halftime" && !isCompleted && (
-                          <i className="fa-solid fa-clock text-[10px] text-white"></i>
+                          <i className="fa-solid fa-clock text-[10px] text-gray-500"></i>
                         )}
 
                         {cp.type !== "final" &&

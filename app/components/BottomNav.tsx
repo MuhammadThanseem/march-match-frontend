@@ -11,7 +11,7 @@ export default function BottomNav() {
     <nav
       className="
         fixed bottom-0 left-1/2 -translate-x-1/2
-        w-full max-w-[375px]
+        w-full max-w-md mx-auto
         z-50 bg-[#0A0E17]/95 backdrop-blur-xl 
         border-t border-gray-700 py-2
       "

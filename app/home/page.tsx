@@ -184,9 +184,9 @@ export default function DashboardPage() {
 
   return (
     <>
-      <main className="relative z-10 w-full max-w-[375px] min-h-screen mx-auto flex flex-col bg-[#0A0E17] text-white overflow-hidden font-sans">
+      <main className="relative z-10 w-full max-w-md mx-auto min-h-screen flex flex-col bg-[#0A0E17] text-white overflow-hidden font-sans">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 max-w-[375px] mx-auto px-5 pt-12 pb-4 flex justify-between items-center bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/5 z-50">
+        <header className="fixed max-w-md mx-auto top-0 left-0 right-0 w-full px-5 pt-12 pb-4 flex justify-between items-center bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/5 z-50">
           <div className="flex items-center gap-3">
             <div className="relative">
               <Image
@@ -219,7 +219,7 @@ export default function DashboardPage() {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto pb-10 w-full mt-32">
+        <div className="flex-1 overflow-y-auto pb-10 w-full mt-30">
           {/* Live Game Card */}
           <Swiper
             modules={[Navigation]}
@@ -229,39 +229,52 @@ export default function DashboardPage() {
             centeredSlides={true}
             className="px-4"
           >
-            {liveGames.map((game: any) => (
-              <SwiperSlide key={game._id}>
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/join-game/${game._id}`);
-                  }}
-                  className="cursor-pointer rounded-3xl p-5 bg-gradient-to-br from-[#1F2937]/80 to-[#111827]/90 border border-gray-700"
-                >
-                  <div className="flex justify-between items-center mb-6">
-                    <TeamBadge
-                      code={game.teamAName?.slice(0, 3).toUpperCase()}
-                      name={game.teamAName}
-                    />
+            {liveGames.length > 0 ? (
+              liveGames.map((game: any) => (
+                <SwiperSlide key={game._id}>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/join-game/${game._id}`);
+                    }}
+                    className="cursor-pointer rounded-3xl p-5 bg-gradient-to-br from-[#1F2937]/80 to-[#111827]/90 border border-gray-700"
+                  >
+                    <div className="flex justify-between items-center mb-6">
+                      <TeamBadge
+                        code={game.teamAName?.slice(0, 3).toUpperCase()}
+                        name={game.teamAName}
+                      />
 
-                    <ScoreCard
-                      scoreA={game.teamAScore}
-                      scoreB={game.teamBScore}
-                    />
+                      <ScoreCard
+                        scoreA={game.teamAScore}
+                        scoreB={game.teamBScore}
+                      />
 
-                    <TeamBadge
-                      code={game.teamBName?.slice(0, 3).toUpperCase()}
-                      name={game.teamBName}
+                      <TeamBadge
+                        code={game.teamBName?.slice(0, 3).toUpperCase()}
+                        name={game.teamBName}
+                      />
+                    </div>
+
+                    <CheckpointCard
+                      checkpoint={game.currentCheckpoint}
+                      nextCheckpoint={game.nextCheckpoint}
                     />
                   </div>
-
-                  <CheckpointCard
-                    checkpoint={game.currentCheckpoint}
-                    nextCheckpoint={game.nextCheckpoint}
-                  />
+                </SwiperSlide>
+              ))
+            ) : (
+              <SwiperSlide>
+                <div className="rounded-3xl p-5 bg-gradient-to-br from-[#1F2937]/80 to-[#111827]/90 border border-gray-700 flex flex-col items-center justify-center text-center h-[200px]">
+                  <p className="text-gray-400 text-lg font-semibold">
+                    No Live Games
+                  </p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    Please check back later
+                  </p>
                 </div>
               </SwiperSlide>
-            ))}
+            )}
           </Swiper>
 
           {/* Number Badge */}

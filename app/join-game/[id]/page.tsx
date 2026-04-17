@@ -88,7 +88,7 @@ export default function JoinGame() {
 
   return (
     <>
-      <main className="relative w-full max-w-[375px] h-screen mx-auto flex flex-col bg-[#0A0E17] text-white">
+      <main className="relative w-full max-w-md mx-auto h-screen mx-auto flex flex-col bg-[#0A0E17] text-white">
         {/* Header */}
         <header className="w-full px-5 pt-12 pb-4 flex justify-between items-center sticky top-0 bg-[#0A0E17]/90 backdrop-blur-md border-b border-[#1F2937]">
           <div className="flex items-center gap-3">

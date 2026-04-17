@@ -101,7 +101,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex justify-center items-center text-white overflow-x-hidden">
       {/* MOBILE WRAPPER */}
-      <main className="relative w-full max-w-[375px] min-h-screen mx-auto  bg-[#0A0E17] flex flex-col justify-between z-10">
+      <main className="relative w-full max-w-md mx-auto min-h-screen mx-auto  bg-[#0A0E17] flex flex-col justify-between z-10">
         {/* HERO */}
         <section className="px-6 py-4 flex flex-col items-center text-center mt-6">
           <div className="w-20 h-20 mb-6 rounded-2xl bg-[#111827] border border-orange-500/40 flex items-center justify-center shadow-[0_0_20px_rgba(255,92,0,0.3)] animate-bounce">

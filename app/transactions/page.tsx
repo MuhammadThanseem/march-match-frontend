@@ -128,7 +128,7 @@ export default function WalletPage() {
 
   return (
     <>
-      <main className="relative z-10 w-full max-w-[375px] min-h-[840px] h-screen mx-auto flex flex-col bg-[#0A0E17] overflow-hidden shadow-2xl text-white font-sans">
+      <main className="relative z-10 w-full max-w-md mx-auto min-h-[840px] h-screen mx-auto flex flex-col bg-[#0A0E17] overflow-hidden shadow-2xl text-white font-sans">
         {/* HEADER */}
         <header className="w-full px-5 pt-12 pb-4 flex justify-between items-center sticky top-0 bg-[#0A0E17]/90 backdrop-blur-md border-b border-[#1F2937] z-20">
           <div

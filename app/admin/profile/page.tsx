@@ -19,6 +19,9 @@ export default function ProfilePage() {
     const saved = localStorage.getItem("user");
     if (saved) {
       setUser(JSON.parse(saved));
+    } else {
+      localStorage.clear(); // Clear any invalid data
+      router.push("/login"); // Redirect to login if no user data
     }
   }, []);
 
@@ -72,7 +75,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <main className="relative z-10 w-full max-w-[375px] min-h-[840px] h-screen mx-auto flex flex-col overflow-hidden shadow-2xl  bg-[#0A0E17] text-white">
+      <main className="relative z-10 w-full max-w-md mx-auto min-h-[840px] h-screen mx-auto flex flex-col overflow-hidden shadow-2xl  bg-[#0A0E17] text-white">
         {/* Header */}
         <header className="w-full px-5 pt-12 pb-4 flex justify-between items-center sticky top-0 bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/20">
           <div className="flex items-center gap-3">
