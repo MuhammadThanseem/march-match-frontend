@@ -400,10 +400,10 @@ export default function AddGamePage() {
               )}
 
               {slotScores.map((slot: any, index: number) => {
-                const isDisabled =
-                  !currentCheckpoint ||
-                  slot.sequence < currentCheckpoint.sequence;
-
+                const isDisabled = isEdit
+                  ? !currentCheckpoint ||
+                    slot.sequence < currentCheckpoint.sequence
+                  : false;
                 return (
                   <div
                     key={index}
