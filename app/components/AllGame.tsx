@@ -5,6 +5,7 @@ import httpService from "@/app/utils/httpService";
 
 export default function AllGamesComponent() {
   const [games, setGames] = useState([]);
+  const [selectedGame, setSelectedGame] = useState<any>(null);
 
   useEffect(() => {
     loadGames();
@@ -52,17 +53,7 @@ export default function AllGamesComponent() {
 
         <div className="flex flex-col gap-3">
           {games?.length > 0 ? (
-            games.map((game: any) => (
-              <GameCard
-                key={game._id}
-                team1={game.teamAName}
-                short1={getTeamCode(game.teamAName)}
-                team2={game.teamBName}
-                short2={getTeamCode(game.teamBName)}
-                time={game.startTime}
-                status={game.status.toUpperCase()}
-              />
-            ))
+            games.map((game: any) => <GameCard key={game._id} game={game} />)
           ) : (
             <p className="text-xs text-gray-500">No games found</p>
           )}
@@ -71,8 +62,12 @@ export default function AllGamesComponent() {
     );
   }
 
-  function GameCard({ team1, short1, team2, short2, time, status }: any) {
-    // 🎨 Status styles
+  function GameCard({ game }: any) {
+    const short1 = getTeamCode(game.teamAName);
+    const short2 = getTeamCode(game.teamBName);
+
+    const status = game.status.toUpperCase();
+
     const statusStyles: any = {
       UPCOMING: "bg-yellow-500/10 text-yellow-400 border border-yellow-400/30",
       LIVE: "bg-[#FF5C00]/10 text-[#FF5C00] border border-[#FF5C00]/30 animate-pulse",
@@ -87,31 +82,44 @@ export default function AllGamesComponent() {
             <div className="w-6 h-6 bg-[#1F2937] flex items-center justify-center rounded-full text-[10px] font-bold">
               {short1}
             </div>
-            <span className="text-sm font-semibold">{team1}</span>
+            <span className="text-sm font-semibold">{game.teamAName}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1">
             <div className="w-6 h-6 bg-[#1F2937] flex items-center justify-center rounded-full text-[10px] font-bold">
               {short2}
             </div>
-            <span className="text-sm text-gray-400">{team2}</span>
+            <span className="text-sm text-gray-400">{game.teamBName}</span>
           </div>
         </div>
 
         {/* Right Side */}
         <div className="flex flex-col items-end gap-2">
           <span className="text-xs text-gray-400">
-            {new Date(time).toLocaleString()}
+            {new Date(game.startTime).toLocaleString()}
           </span>
 
-          <button
-            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition ${
-              statusStyles[status] ||
-              "bg-gray-700 text-gray-300 border border-gray-600"
-            }`}
-          >
-            {status.toUpperCase()}
-          </button>
+          {/* ✅ SAME ROW: STATUS + EDIT ICON */}
+          <div className="flex items-center gap-2">
+            {/* STATUS */}
+            <span
+              className={`px-3 py-1 text-xs font-bold rounded-lg ${
+                statusStyles[status]
+              }`}
+            >
+              {status}
+            </span>
+
+            {/* EDIT ICON */}
+            {(game.status === "live" || game.status === "upcoming") && (
+              <button
+                onClick={() => setSelectedGame(game)}
+                className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-md bg-[#FF5C00] hover:bg-[#e65300]"
+              >
+                <i className="fa-solid fa-pen text-[10px]"></i>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );

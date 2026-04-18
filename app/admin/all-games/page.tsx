@@ -9,10 +9,9 @@ export default function SuperAdminHomePage() {
 
   return (
     <>
-      <main className="relative z-10 w-full max-w-md mx-auto min-h-screen mx-auto flex flex-col bg-[#0A0E17] text-white overflow-hidden font-sans">
+      <main className="h-screen w-full max-w-md mx-auto flex flex-col bg-[#0A0E17] text-white font-sans overflow-hidden">
         {/* =================== HEADER =================== */}
-        {/* Header */}
-        <header className="w-full px-5 pt-12 pb-4 flex justify-between items-center sticky top-0 bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/20">
+        <header className="px-5 pt-12 pb-4 flex justify-between items-center bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/20 flex-shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.back()}
@@ -25,8 +24,9 @@ export default function SuperAdminHomePage() {
             </h1>
           </div>
         </header>
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto pb-4 w-full">
+
+        {/* ✅ ONLY THIS SCROLLS */}
+        <div className="flex-1 overflow-y-auto pb-24">
           <AllGamesComponent />
         </div>
       </main>

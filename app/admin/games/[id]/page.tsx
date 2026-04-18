@@ -2,11 +2,13 @@
 
 import BottomNavAdmin from "@/app/components/BottomNavAdmin";
 import httpService from "@/app/utils/httpService";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function AddGamePage() {
+  const { id } = useParams();
+  const isEdit = id !== "new";
   const [formData, setFormData] = useState({
     title: "",
     teamAName: "",
@@ -26,16 +28,97 @@ export default function AddGamePage() {
   const [errors, setErrors] = useState<any>({});
   const router = useRouter();
   const [slotScores, setSlotScores] = useState<any>([]);
+  const [currentCheckpoint, setCurrentCheckpoint] = useState<any | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number>(0);
 
   useEffect(() => {
-    const slots: any = Array.from({ length: formData.totalSlots }, (_, i) => ({
+    if (isEdit) {
+      fetchGame();
+    } else {
+      loadDefaultSlots();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (!currentCheckpoint?.endTime) return;
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const end = new Date(currentCheckpoint.endTime).getTime();
+
+      const diff = end - now;
+
+      if (diff <= 0) {
+        setRemainingTime(0);
+
+        clearInterval(interval); // ✅ stop interval
+        fetchGame(); // ✅ call only once
+      } else {
+        setRemainingTime(diff);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentCheckpoint]);
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const fetchGame = async () => {
+    try {
+      const res: any = await httpService.get(`/games/${id}/full-details`);
+
+      const game = res.data.data.game;
+      const checkpoints = res.data.data.checkpoints;
+      const current = res.data.data.currentCheckpoint ?? null;
+      setCurrentCheckpoint(current);
+
+      // ✅ Set form data
+      setFormData({
+        title: game.title || "",
+        teamAName: game.teamAName || "",
+        teamBName: game.teamBName || "",
+        league: game.league || "",
+        entryFee: game.entryFee || "",
+        totalSlots: game.totalSlots || 10,
+        potAmount: game.potAmount || 0,
+        startTime: game.startTime ? formatToLocalInput(game.startTime) : "",
+        status: game.status || "upcoming",
+        teamAScore: game.teamAScore || 0,
+        teamBScore: game.teamBScore || 0,
+      });
+
+      // ✅ Extract slot scores from checkpoints
+      if (checkpoints?.length > 0) {
+        const slots = checkpoints.map((cp: any) => ({
+          sequence: cp.sequence,
+          teamAScore: cp.score?.teamAScore || 0,
+          teamBScore: cp.score?.teamBScore || 0,
+        }));
+
+        setSlotScores(slots);
+      } else {
+        loadDefaultSlots();
+      }
+    } catch (err) {
+      toast.error("Failed to load game");
+    }
+  };
+
+  const loadDefaultSlots = () => {
+    const slots = Array.from({ length: formData.totalSlots }, (_, i) => ({
       sequence: i + 1,
       teamAScore: 0,
       teamBScore: 0,
     }));
-
     setSlotScores(slots);
-  }, [formData.totalSlots]);
+  };
 
   const validateForm = () => {
     let newErrors: any = {};
@@ -76,52 +159,34 @@ export default function AddGamePage() {
     if (!validateForm()) return;
 
     setLoading(true);
-    setMessage("");
 
     try {
       const utcStartTime = new Date(formData.startTime).toISOString();
 
-      const res: any = await httpService.post("/games/create", {
+      const payload = {
         ...formData,
-        startTime: utcStartTime, // ✅ IMPORTANT
+        startTime: utcStartTime,
         entryFee: Number(formData.entryFee),
         potAmount: Number(formData.potAmount),
         totalSlots: Number(formData.totalSlots),
-
         scores: slotScores.map((slot: any) => ({
           sequence: slot.sequence,
           teamAScore: Number(slot.teamAScore),
           teamBScore: Number(slot.teamBScore),
         })),
-      });
+      };
 
-      toast.success("Game created successfully!");
-      setErrors({});
-
-      // reset form
-      setFormData({
-        title: "",
-        teamAName: "",
-        teamBName: "",
-        league: "",
-        entryFee: "",
-        totalSlots: 10,
-        potAmount: 0,
-        startTime: "",
-        status: "upcoming",
-        teamAScore: 0,
-        teamBScore: 0,
-      });
-      // ✅ Reset slot scores
-      const resetSlots = Array.from({ length: 10 }, (_, i) => ({
-        sequence: i + 1,
-        teamAScore: 0,
-        teamBScore: 0,
-      }));
-      setSlotScores(resetSlots);
-    } catch (error: any) {
-      toast.error("Failed to create game. Please try again.");
-      setMessage(error?.response?.data?.message || "Failed to create game");
+      if (isEdit) {
+        // ✅ UPDATE
+        await httpService.put(`/games/${id}`, payload);
+        toast.success("Game updated successfully!");
+      } else {
+        // ✅ CREATE
+        await httpService.post("/games/create", payload);
+        toast.success("Game created successfully!");
+      }
+    } catch (error) {
+      toast.error("Operation failed");
     }
 
     setLoading(false);
@@ -146,6 +211,15 @@ export default function AddGamePage() {
     setFormData(updatedData);
   };
 
+  const formatToLocalInput = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60000);
+
+    return localDate.toISOString().slice(0, 16);
+  };
+
   return (
     <>
       <main className="relative z-10 w-full max-w-md mx-auto min-h-[840px] h-screen mx-auto flex flex-col overflow-hidden shadow-2xl  bg-[#0A0E17] text-white">
@@ -159,14 +233,17 @@ export default function AddGamePage() {
               <i className="fa-solid fa-chevron-left"></i>
             </button>
             <h1 className="text-xl font-bold text-brand-text font-display">
-              Add Game
+              {isEdit ? "Edit Game" : "Add Game"}
             </h1>
           </div>
         </header>
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto pb-32 px-4 mt-4 space-y-6">
-          <h2 className="text-2xl font-semibold mb-4">Add Game</h2>
+          <h2 className="text-2xl font-semibold mb-4">
+            {" "}
+            {isEdit ? "Edit Game" : "Add Game"}
+          </h2>
 
           {message && (
             <p className="mb-3 text-sm text-blue-600 font-medium">{message}</p>
@@ -308,40 +385,76 @@ export default function AddGamePage() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Timeout Scores</h3>
 
-              {slotScores.map((slot: any, index: number) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-3 gap-2 items-center"
-                >
-                  <span className="text-sm text-gray-400">
-                    Timeout {slot.sequence}
-                  </span>
-
-                  <input
-                    type="number"
-                    placeholder="A"
-                    value={slot.teamAScore}
-                    onChange={(e) => {
-                      const updated = [...slotScores];
-                      updated[index].teamAScore = Number(e.target.value);
-                      setSlotScores(updated);
-                    }}
-                    className="p-2 rounded bg-[#111827]"
-                  />
-
-                  <input
-                    type="number"
-                    placeholder="B"
-                    value={slot.teamBScore}
-                    onChange={(e) => {
-                      const updated = [...slotScores];
-                      updated[index].teamBScore = Number(e.target.value);
-                      setSlotScores(updated);
-                    }}
-                    className="p-2 rounded bg-[#111827]"
-                  />
+              {/* ⏱️ TIMER UI */}
+              {currentCheckpoint && (
+                <div className="text-center bg-[#111827] p-3 rounded-xl border border-white/10">
+                  <p className="text-xs text-gray-400">Time Remaining</p>
+                  <p
+                    className={`text-xl font-bold ${
+                      remainingTime < 30000 ? "text-red-500" : "text-green-400"
+                    }`}
+                  >
+                    {formatTime(remainingTime)}
+                  </p>
                 </div>
-              ))}
+              )}
+
+              {slotScores.map((slot: any, index: number) => {
+                const isDisabled =
+                  !currentCheckpoint ||
+                  slot.sequence < currentCheckpoint.sequence;
+
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-3 gap-2 items-center"
+                  >
+                    <span
+                      className={`text-sm ${
+                        slot.sequence === currentCheckpoint
+                          ? "text-green-400 font-semibold"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      Timeout {slot.sequence}
+                    </span>
+
+                    <input
+                      type="number"
+                      placeholder="A"
+                      value={slot.teamAScore}
+                      disabled={isDisabled}
+                      onChange={(e) => {
+                        const updated = [...slotScores];
+                        updated[index].teamAScore = Number(e.target.value);
+                        setSlotScores(updated);
+                      }}
+                      className={`p-2 rounded ${
+                        isDisabled
+                          ? "bg-gray-700 cursor-not-allowed"
+                          : "bg-[#111827]"
+                      }`}
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="B"
+                      value={slot.teamBScore}
+                      disabled={isDisabled}
+                      onChange={(e) => {
+                        const updated = [...slotScores];
+                        updated[index].teamBScore = Number(e.target.value);
+                        setSlotScores(updated);
+                      }}
+                      className={`p-2 rounded ${
+                        isDisabled
+                          ? "bg-gray-700 cursor-not-allowed"
+                          : "bg-[#111827]"
+                      }`}
+                    />
+                  </div>
+                );
+              })}
             </div>
 
             {/* Submit */}
@@ -350,7 +463,13 @@ export default function AddGamePage() {
               disabled={loading}
               className="cursor-pointer w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90 transition"
             >
-              {loading ? "Saving..." : "Create Game"}
+              {loading
+                ? isEdit
+                  ? "Updating..."
+                  : "Saving..."
+                : isEdit
+                  ? "Update Game"
+                  : "Create Game"}
             </button>
           </form>
         </div>

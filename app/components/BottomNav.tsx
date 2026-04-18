@@ -65,7 +65,7 @@ export default function BottomNav() {
         {/* Center Button (Join Game) */}
         <div className="relative -top-5">
           <Link
-            href="/home"
+            href="/join-game"
             className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF5C00] to-yellow-400 
                flex items-center justify-center shadow-lg border-4 border-[#0A0E17] 
                hover:scale-105 active:scale-95 transition"

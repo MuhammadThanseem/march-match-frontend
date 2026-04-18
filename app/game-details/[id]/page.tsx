@@ -411,13 +411,12 @@ export default function GameDetailsPage() {
                         )}
 
                         {/* ✅ ONLY ACTIVE SHOWS TIMER */}
-                        {isActive && (
+                        {isActive && remaining > 0 && (
                           <>
                             <p className="text-xs text-orange-400 mt-1">
                               ⏱️ {formatGameClock(remaining)} remaining
                             </p>
 
-                            {/* ✅ REVERSE PROGRESS BAR */}
                             <div className="mt-2 w-full bg-gray-700 h-1.5 rounded">
                               <div
                                 className="bg-orange-400 h-1.5 rounded transition-all duration-1000 linear"
