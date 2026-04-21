@@ -52,13 +52,17 @@ export default function LoginPage() {
       );
 
       if (response.status == 200) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+        const token = response.data.token;
+        const user = response.data.user;
 
-        if (
-          response.data.user.role === "admin" ||
-          response.data.user.role === "superadmin"
-        ) {
+        // ✅ Store in cookie (accessible by server)
+        document.cookie = `token=${token}; path=/`;
+
+        // ✅ (optional) still keep localStorage for UI
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        if (user.role === "admin" || user.role === "superadmin") {
           router.push("/admin/dashboard");
         } else {
           router.push("/home");
