@@ -18,6 +18,10 @@ export default function JoinGame() {
   });
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<{
+    minutes: number;
+    seconds: number;
+  } | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -25,6 +29,19 @@ export default function JoinGame() {
       loadWallet();
     }
   }, [id]);
+  useEffect(() => {
+    if (!game?.startTime) return;
+
+    const updateTimer = () => {
+      setTimeLeft(getTimeRemaining(game.startTime));
+    };
+
+    updateTimer(); // run immediately
+
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [game?.startTime]);
 
   // ✅ Fetch game by ID
   const loadGameDetails = async (gameId: string) => {
@@ -86,6 +103,19 @@ export default function JoinGame() {
     }
   };
 
+  function getTimeRemaining(startTime: string | Date) {
+    const total = new Date(startTime).getTime() - new Date().getTime();
+
+    const minutes = Math.floor(total / 1000 / 60);
+
+    // ❌ if started OR more than 20 mins → no countdown
+    if (total <= 0 || minutes > 19) return null;
+
+    const seconds = Math.floor((total / 1000) % 60);
+
+    return { minutes, seconds };
+  }
+
   return (
     <>
       <main className="relative w-full max-w-md mx-auto h-screen mx-auto flex flex-col bg-[#0A0E17] text-white">
@@ -112,8 +142,29 @@ export default function JoinGame() {
           {/* Game Match */}
           <section className="p-5 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl">
             <div className="flex justify-between items-center mb-6">
-              <span className="bg-gray-800 border border-gray-700 text-xs px-3 py-1.5 rounded-full">
-                Tip-off: {formatTime(game.startTime)}
+              <span
+                className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border ${
+                  game.status === "completed"
+                    ? "bg-green-900/30 border-green-700 text-green-400"
+                    : timeLeft
+                      ? "bg-gray-800 border-gray-700 text-white"
+                      : game.status === "live"
+                        ? "bg-orange-900/30 border-orange-700 text-orange-400"
+                        : "bg-gray-800 border-gray-700 text-white"
+                }`}
+              >
+                {game.status === "completed" ? (
+                  "Completed"
+                ) : timeLeft ? (
+                  `Tip-off in ${timeLeft.minutes}m ${timeLeft.seconds}s`
+                ) : game.status === "live" ? (
+                  <>
+                    <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></span>
+                    Live
+                  </>
+                ) : (
+                  `Tip-off: ${formatTime(game.startTime)}`
+                )}
               </span>
               <span className="text-xs">{game.league}</span>
             </div>
@@ -151,7 +202,7 @@ export default function JoinGame() {
             <div className="p-5 text-center bg-[#111827] rounded-xl">
               <p className="text-xs text-gray-400">Total Pot</p>
               <p className="text-3xl font-bold text-green-400">
-                ${game.potAmount}
+                ${(game?.entryFee || 0) * (game?.totalSlots || 0) * 1.1}
               </p>
             </div>
           </section>
@@ -177,7 +228,7 @@ export default function JoinGame() {
                   </span>
                 </div>
                 <span className="text-sm font-bold text-white bg-gray-800 px-3 py-1 rounded-lg">
-                  $10{" "}
+                  ${game?.entryFee}
                   <span className="text-xs text-brand-muted font-normal">
                     each
                   </span>
@@ -193,7 +244,7 @@ export default function JoinGame() {
                   </span>
                 </div>
                 <span className="text-sm font-bold text-white bg-gray-800 px-3 py-1 rounded-lg">
-                  $10
+                  ${game?.entryFee}
                 </span>
               </div>
 
@@ -206,7 +257,7 @@ export default function JoinGame() {
                   </span>
                 </div>
                 <span className="text-sm font-bold text-green-400 bg-green-900/30 border border-green-800/50 px-3 py-1 rounded-lg">
-                  $20
+                  ${2 * game?.entryFee || 0}
                 </span>
               </div>
             </div>
@@ -222,34 +273,6 @@ export default function JoinGame() {
                   Action Every 4 Minutes!
                 </strong>
               </p>
-            </div>
-          </section>
-
-          {/* Game Logic */}
-          <section id="game-logic" className="clean-card p-5">
-            <h3 className="text-sm font-bold text-gray-400 mb-3">How to Win</h3>
-
-            <div className="flex justify-between bg-gray-800 p-4 rounded-xl">
-              <div className="text-center flex-1">
-                <span className="text-xs text-gray-400">Combined Score</span>
-                <p className="text-2xl font-bold">87</p>
-              </div>
-
-              <i className="fa-solid fa-arrow-right text-gray-500"></i>
-
-              <div className="text-center flex-1">
-                <span className="text-xs text-gray-400">Last Digit</span>
-                <p className="text-2xl font-bold text-orange-400">7</p>
-              </div>
-
-              <i className="fa-solid fa-arrow-right text-gray-500"></i>
-
-              <div className="text-center flex-1">
-                <span className="text-xs text-gray-400">Winner</span>
-                <div className="w-8 h-8 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-bold">#7</span>
-                </div>
-              </div>
             </div>
           </section>
 

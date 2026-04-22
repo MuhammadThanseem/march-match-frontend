@@ -110,6 +110,14 @@ export default function AllGamesComponent() {
               {status}
             </span>
 
+            {/* View ICON */}
+            <button
+              onClick={() => setSelectedGame(game)}
+              className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-md bg-[#FF5C00] hover:bg-[#e65300]"
+            >
+              <i className="fa-solid fa-eye text-[10px]"></i>
+            </button>
+
             {/* EDIT ICON */}
             {(game.status === "live" || game.status === "upcoming") && (
               <button

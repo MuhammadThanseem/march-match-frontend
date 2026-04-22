@@ -212,33 +212,52 @@ export default function SuperAdminHomePage() {
             centeredSlides={true}
             className="px-4"
           >
-            {liveGames.map((game: any) => (
-              <SwiperSlide key={game._id}>
-                <div className="cursor-pointer rounded-3xl p-5 bg-gradient-to-br from-[#1F2937]/80 to-[#111827]/90 border border-gray-700">
-                  <div className="flex justify-between items-center mb-6">
-                    <TeamBadge
-                      code={game.teamAName?.slice(0, 3).toUpperCase()}
-                      name={game.teamAName}
-                    />
+            {liveGames.length > 0 ? (
+              liveGames.map((game: any) => (
+                <SwiperSlide key={game._id}>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/join-game/${game._id}`);
+                    }}
+                    className="cursor-pointer rounded-3xl p-5 bg-gradient-to-br from-[#1F2937]/80 to-[#111827]/90 border border-gray-700"
+                  >
+                    <div className="flex justify-between items-center mb-6">
+                      <TeamBadge
+                        code={game.teamAName?.slice(0, 3).toUpperCase()}
+                        name={game.teamAName}
+                      />
 
-                    <ScoreCard
-                      scoreA={game.teamAScore}
-                      scoreB={game.teamBScore}
-                    />
+                      <ScoreCard
+                        scoreA={game.teamAScore}
+                        scoreB={game.teamBScore}
+                      />
 
-                    <TeamBadge
-                      code={game.teamBName?.slice(0, 3).toUpperCase()}
-                      name={game.teamBName}
+                      <TeamBadge
+                        code={game.teamBName?.slice(0, 3).toUpperCase()}
+                        name={game.teamBName}
+                      />
+                    </div>
+
+                    <CheckpointCard
+                      checkpoint={game.currentCheckpoint}
+                      nextCheckpoint={game.nextCheckpoint}
                     />
                   </div>
-
-                  <CheckpointCard
-                    checkpoint={game.currentCheckpoint}
-                    nextCheckpoint={game.nextCheckpoint}
-                  />
+                </SwiperSlide>
+              ))
+            ) : (
+              <SwiperSlide>
+                <div className="rounded-3xl p-5 bg-gradient-to-br from-[#1F2937]/80 to-[#111827]/90 border border-gray-700 flex flex-col items-center justify-center text-center h-[200px]">
+                  <p className="text-gray-400 text-lg font-semibold">
+                    No Live Games
+                  </p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    Please check back later
+                  </p>
                 </div>
               </SwiperSlide>
-            ))}
+            )}
           </Swiper>
 
           {/* Recent Payouts */}
@@ -552,6 +571,13 @@ export default function SuperAdminHomePage() {
             >
               {status}
             </span>
+
+            <button
+              onClick={() => router.push(`/admin/games/details/${game._id}`)}
+              className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-md bg-[#FF5C00] hover:bg-[#e65300]"
+            >
+              <i className="fa-solid fa-eye text-[10px]"></i>
+            </button>
 
             {/* EDIT ICON */}
             {(game.status === "live" || game.status === "upcoming") && (
