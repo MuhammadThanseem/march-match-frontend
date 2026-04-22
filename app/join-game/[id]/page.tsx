@@ -202,7 +202,12 @@ export default function JoinGame() {
             <div className="p-5 text-center bg-[#111827] rounded-xl">
               <p className="text-xs text-gray-400">Total Pot</p>
               <p className="text-3xl font-bold text-green-400">
-                ${(game?.entryFee || 0) * (game?.totalSlots || 0) * 1.1}
+                $
+                {(
+                  (game?.entryFee || 0) *
+                  (game?.totalSlots || 0) *
+                  1.1
+                ).toFixed(2)}
               </p>
             </div>
           </section>
@@ -228,7 +233,7 @@ export default function JoinGame() {
                   </span>
                 </div>
                 <span className="text-sm font-bold text-white bg-gray-800 px-3 py-1 rounded-lg">
-                  ${game?.entryFee}
+                  ${game?.entryFee} &nbsp;
                   <span className="text-xs text-brand-muted font-normal">
                     each
                   </span>
