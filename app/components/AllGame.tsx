@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import httpService from "@/app/utils/httpService";
+import { useRouter } from "next/navigation";
 
 export default function AllGamesComponent() {
   const [games, setGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     loadGames();
@@ -112,7 +114,7 @@ export default function AllGamesComponent() {
 
             {/* View ICON */}
             <button
-              onClick={() => setSelectedGame(game)}
+              onClick={() => router.push(`/admin/games/details/${game._id}`)}
               className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-md bg-[#FF5C00] hover:bg-[#e65300]"
             >
               <i className="fa-solid fa-eye text-[10px]"></i>
