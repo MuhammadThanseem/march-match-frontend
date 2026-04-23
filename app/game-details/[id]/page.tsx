@@ -17,10 +17,14 @@ export default function GameDetailsPage() {
     pending: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState<{
+    minutes: number;
+    seconds: number;
+  } | null>(null);
   const router = useRouter();
   const [tick, setTick] = useState(0);
   const CHECKPOINT_DURATION = 240;
+  const [tipoffReached, setTipoffReached] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -76,9 +80,6 @@ export default function GameDetailsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const getProgress = (remainingTime: number) => {
-    return ((CHECKPOINT_DURATION - remainingTime) / CHECKPOINT_DURATION) * 100;
-  };
   const getRemainingTime = (cp: any) => {
     // If backend gives remainingTime
     if (cp.remainingTime !== undefined) {
@@ -100,7 +101,6 @@ export default function GameDetailsPage() {
     try {
       const res: any = await httpService.get(`/games/${gameId}/details`);
       setGame(res.data.game);
-      setTimeLeft(res.data.game.currentQuarterTime || 0);
     } catch (err) {
       console.log("Game fetch error:", err);
     } finally {
@@ -141,16 +141,31 @@ export default function GameDetailsPage() {
     }
   };
 
-  // ⏱️ TIMER
   useEffect(() => {
-    if (!timeLeft) return;
+    if (!game?.startTime) return;
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+    const updateTimer = () => {
+      const remaining = getTimeRemaining(game.startTime);
 
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+      setTimeLeft(remaining);
+
+      // ✅ when countdown ends
+      if (!remaining && !tipoffReached) {
+        console.log("🚀 Tip-off reached");
+
+        setTipoffReached(true);
+
+        // 🔥 fetch latest game status
+        loadGameDetails(id as string);
+        loadCheckpoints(id as string);
+      }
+    };
+
+    updateTimer();
+
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [game?.startTime, tipoffReached]);
 
   const formatGameClock = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -177,6 +192,28 @@ export default function GameDetailsPage() {
   );
   const lastCompletedCheckpoint = checkpoints[activeCheckpointIndex - 1];
   const checkpointWinningNumber = lastCompletedCheckpoint?.winningNumber;
+
+  // ✅ Format time
+  function getTimeRemaining(startTime: string | Date) {
+    const total = new Date(startTime).getTime() - new Date().getTime();
+
+    const minutes = Math.floor(total / 1000 / 60);
+
+    // ❌ if started OR more than 20 mins → no countdown
+    if (total <= 0 || minutes > 19) return null;
+
+    const seconds = Math.floor((total / 1000) % 60);
+
+    return { minutes, seconds };
+  }
+
+  // ✅ Format time
+  const formatTime = (date: string) => {
+    return new Date(date).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <main className="w-full min-h-screen flex flex-col items-center justify-center text-white">
@@ -207,31 +244,28 @@ export default function GameDetailsPage() {
           <section className="bg-[#111827] border border-[#1F2937] rounded-2xl p-5">
             <div className="flex justify-between items-center mb-4">
               <span
-                className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 ${
+                className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border ${
                   game.status === "completed"
-                    ? "bg-green-500/10 text-green-400"
-                    : isGameStarted
-                      ? "bg-red-500/10 text-red-400"
-                      : "bg-yellow-500/10 text-yellow-400"
+                    ? "bg-green-900/30 border-green-700 text-green-400"
+                    : timeLeft
+                      ? "bg-gray-800 border-gray-700 text-white"
+                      : game.status === "live"
+                        ? "bg-orange-900/30 border-orange-700 text-orange-400"
+                        : "bg-gray-800 border-gray-700 text-white"
                 }`}
               >
-                {/* ✅ DOT */}
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    game.status === "completed"
-                      ? "bg-green-400"
-                      : isGameStarted
-                        ? "bg-red-500 animate-pulse"
-                        : "bg-yellow-500"
-                  }`}
-                />
-
-                {/* ✅ TEXT */}
-                {game.status === "completed"
-                  ? "COMPLETED"
-                  : isGameStarted
-                    ? `LIVE Q${activeCheckpointIndex + 1} • ${formatGameClock(timeLeft)}`
-                    : "UPCOMING"}
+                {game.status === "completed" ? (
+                  "Completed"
+                ) : timeLeft ? (
+                  `Tip-off in ${timeLeft.minutes}m ${timeLeft.seconds}s`
+                ) : game.status === "live" ? (
+                  <>
+                    <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></span>
+                    LIVE Q{activeCheckpointIndex + 1}
+                  </>
+                ) : (
+                  `Tip-off: ${formatTime(game.startTime)}`
+                )}
               </span>
 
               <span className="text-xs text-gray-400">{game.league}</span>
@@ -439,50 +473,56 @@ export default function GameDetailsPage() {
               Recent Winners
             </h3>
 
-            <div className="space-y-3">
-              {winners?.map((w: any, i: number) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between p-2 hover:bg-[#1F2937] rounded-lg transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
-                      #{w.number}
+            {winners && winners.length > 0 ? (
+              <div className="space-y-3">
+                {winners.map((w: any, i: number) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-2 hover:bg-[#1F2937] rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+                        #{w.number}
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          {w.type === "halftime"
+                            ? "Half Time"
+                            : w.type === "final"
+                              ? "Final"
+                              : `Media TO ${w.checkpoint}`}
+                        </p>
+
+                        <p className="text-[10px] text-gray-400">
+                          {w.type === "halftime"
+                            ? "Halftime"
+                            : w.type === "final"
+                              ? "Full Time"
+                              : `Q ${w.checkpoint}`}{" "}
+                          • 11:42
+                        </p>
+                      </div>
                     </div>
 
-                    <div>
-                      <p className="text-sm font-semibold text-white">
-                        {w.type === "halftime"
-                          ? "Half Time"
-                          : w.type === "final"
-                            ? "Final"
-                            : `Media TO ${w.checkpoint}`}
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-green-400">
+                        +${w.amount.toFixed(2)}
                       </p>
-
                       <p className="text-[10px] text-gray-400">
-                        {w.type === "halftime"
-                          ? "Halftime"
-                          : w.type === "final"
-                            ? "Full Time"
-                            : `Q ${w.checkpoint}`}{" "}
-                        • 11:42
+                        User: {w.userName || "Unknown"}
                       </p>
                     </div>
                   </div>
+                ))}
 
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-green-400">
-                      +${w.amount.toFixed(2)}
-                    </p>
-                    <p className="text-[10px] text-gray-400">
-                      User: {w.userName || "Unknown"}
-                    </p>
-                  </div>
-                </div>
-              ))}
-
-              <div className="h-px w-full bg-[#1F2937]"></div>
-            </div>
+                <div className="h-px w-full bg-[#1F2937]"></div>
+              </div>
+            ) : (
+              <div className="text-center py-6 text-gray-400 text-sm">
+                No winners yet
+              </div>
+            )}
           </section>
         </div>
 
