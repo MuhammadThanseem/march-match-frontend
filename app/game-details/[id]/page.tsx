@@ -373,8 +373,10 @@ export default function GameDetailsPage() {
               <h3 className="text-sm font-bold text-white">
                 Payout Checkpoints
               </h3>
+
               <span className="text-xs font-semibold text-green-400 bg-green-900/30 px-2 py-1 rounded-md">
-                Pot: ${game.totalSlots * 10 + 10}
+                Pot: $
+                {(game.totalSlots - 1) * game.entryFee + 2 * game.entryFee}
               </span>
             </div>
             <div className="relative pl-2">
