@@ -507,7 +507,7 @@ export default function GameDetailsPage() {
                             : w.type === "final"
                               ? "Full Time"
                               : `Q ${w.checkpoint}`}{" "}
-                          • 11:42
+                          • {formatTime(w.time)}
                         </p>
                       </div>
                     </div>
