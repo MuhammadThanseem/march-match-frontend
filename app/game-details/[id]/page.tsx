@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import BottomNav from "@/app/components/BottomNav";
 import httpService from "@/app/utils/httpService";
@@ -25,6 +25,7 @@ export default function GameDetailsPage() {
   const [tick, setTick] = useState(0);
   const CHECKPOINT_DURATION = 240;
   const [tipoffReached, setTipoffReached] = useState(false);
+  const winnersTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -59,7 +60,7 @@ export default function GameDetailsPage() {
       loadGameDetails(id as string);
 
       // 2️⃣ Call winners AFTER 10 seconds
-      winnersTimeout = setTimeout(() => {
+      winnersTimeoutRef.current = setTimeout(() => {
         console.log("🏆 Loading winners after 10s");
         loadWinners(id as string);
         loadWallet();
@@ -68,7 +69,6 @@ export default function GameDetailsPage() {
 
     return () => {
       clearTimeout(checkpointTimeout);
-      if (winnersTimeout) clearTimeout(winnersTimeout);
     };
   }, [checkpoints, id]);
 
@@ -77,7 +77,12 @@ export default function GameDetailsPage() {
       setTick((t) => t + 1);
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (winnersTimeoutRef.current) {
+        clearTimeout(winnersTimeoutRef.current);
+      }
+    };
   }, []);
 
   const getRemainingTime = (cp: any) => {
