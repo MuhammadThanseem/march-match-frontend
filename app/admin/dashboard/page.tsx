@@ -539,6 +539,7 @@ export default function SuperAdminHomePage() {
     return (
       <div className="rounded-2xl p-3 flex justify-between bg-white/5 hover:bg-[#1F2937]/60 transition border border-transparent hover:border-gray-600">
         {/* Teams */}
+        {/* Teams */}
         <div>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-[#1F2937] flex items-center justify-center rounded-full text-[10px] font-bold">
@@ -553,6 +554,12 @@ export default function SuperAdminHomePage() {
             </div>
             <span className="text-sm text-gray-400">{game.teamBName}</span>
           </div>
+
+          {game.status === "upcoming" && (
+            <span className="inline-block mt-3 text-xs font-semibold text-orange-400">
+              🎟️ Only {game.pendingSlots} slots left
+            </span>
+          )}
         </div>
 
         {/* Right Side */}

@@ -205,7 +205,7 @@ export default function AddGamePage() {
       const entry = Number(name === "entryFee" ? value : formData.entryFee);
       const slots = Number(name === "totalSlots" ? value : formData.totalSlots);
 
-      updatedData.potAmount = (entry * slots * 1.1);
+      updatedData.potAmount = Number((entry * slots * 1.1).toFixed(2));
     }
 
     setFormData(updatedData);

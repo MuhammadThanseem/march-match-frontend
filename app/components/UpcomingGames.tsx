@@ -63,6 +63,8 @@ export default function AllUpcomingGamesComponent() {
                 short2={getTeamCode(game.teamBName)}
                 time={game.startTime}
                 entryFee={game.entryFee}
+                pendingSlots={game.pendingSlots}
+                totalSlots={game.totalSlots}
               />
             ))
           ) : (
@@ -73,7 +75,17 @@ export default function AllUpcomingGamesComponent() {
     );
   }
 
-  function GameCard({ id, team1, short1, team2, short2, time, entryFee }: any) {
+  function GameCard({
+    id,
+    team1,
+    short1,
+    team2,
+    short2,
+    time,
+    entryFee,
+    pendingSlots,
+    totalSlots,
+  }: any) {
     // 🎨 Status styles
     const statusStyles: any = {
       UPCOMING: "bg-yellow-500/10 text-yellow-400 border border-yellow-400/30",
@@ -83,6 +95,7 @@ export default function AllUpcomingGamesComponent() {
 
     return (
       <div className="rounded-2xl p-3 flex justify-between bg-white/5 hover:bg-[#1F2937]/60 transition border border-transparent hover:border-gray-600">
+
         {/* Teams */}
         <div>
           <div className="flex items-center gap-2">
@@ -97,6 +110,23 @@ export default function AllUpcomingGamesComponent() {
               {short2}
             </div>
             <span className="text-sm text-gray-400">{team2}</span>
+          </div>
+
+          {/* Slots Progress */}
+          <div className="mt-3">
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>Slots Left</span>
+              <span>{pendingSlots}</span>
+            </div>
+
+            <div className="w-full h-2 bg-[#1F2937] rounded-full mt-1 overflow-hidden">
+              <div
+                className="h-full bg-[#00F0FF]"
+                style={{
+                  width: `${((totalSlots - pendingSlots) / totalSlots) * 100}%`,
+                }}
+              />
+            </div>
           </div>
         </div>
 

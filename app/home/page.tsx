@@ -552,6 +552,8 @@ function UpcomingGames({ upcomingGames, getTeamCode }: any) {
               time={new Date(game.startTime).toLocaleString()}
               amount={game.entryFee}
               entryFee={game.entryFee}
+              pendingSlots={game.pendingSlots}
+              totalSlots={game.totalSlots}
             />
           ))
         ) : (
@@ -562,26 +564,46 @@ function UpcomingGames({ upcomingGames, getTeamCode }: any) {
   );
 }
 
-function GameCard({ id, team1, short1, team2, short2, time, entryFee }: any) {
+function GameCard({
+  id,
+  team1,
+  short1,
+  team2,
+  short2,
+  time,
+  entryFee,
+  pendingSlots,
+  totalSlots,
+}: any) {
   return (
     <div className="rounded-2xl p-3 flex justify-between bg-white/5 hover:bg-[#1F2937]/60 transition border border-transparent hover:border-gray-600">
-      <div>
+      <div className="flex-1">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-[#1F2937] flex items-center justify-center rounded-full text-[10px] font-bold">
             {short1}
           </div>
           <span className="text-sm font-semibold">{team1}</span>
         </div>
+
         <div className="flex items-center gap-2 mt-1">
           <div className="w-6 h-6 bg-[#1F2937] flex items-center justify-center rounded-full text-[10px] font-bold">
             {short2}
           </div>
           <span className="text-sm text-gray-400">{team2}</span>
         </div>
+
+        {/* Slots Progress */}
+        <div className="mt-3">
+          <span className="text-xs font-semibold text-orange-400">
+             🎟️ Only {pendingSlots} slots left
+          </span>
+        </div>
       </div>
 
-      <div className="flex flex-col items-end gap-2">
-        <span className="text-xs text-gray-400">{time}</span>
+      <div className="flex flex-col items-end gap-2 ml-4">
+        <span className="text-xs text-gray-400">
+          {new Date(time).toLocaleString()}
+        </span>
 
         <Link
           href={`/join-game/${id}`}
