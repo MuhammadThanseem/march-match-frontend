@@ -28,7 +28,6 @@ type Transaction = {
   createdAt: string;
 };
 
-
 export default function AdminUserTransactionPage() {
   const { id } = useParams();
   const [user, setUser] = useState<User | null>(null);
@@ -44,9 +43,7 @@ export default function AdminUserTransactionPage() {
         setError(null);
         const [userRes, txRes] = await Promise.all([
           httpService.get<any>(`/user/${id}`),
-          httpService.get<any>(
-            `/wallet/user/${id}/transactions`,
-          ),
+          httpService.get<any>(`/wallet/user/${id}/transactions`),
         ]);
 
         setUser(userRes.data.data || null);
@@ -74,10 +71,10 @@ export default function AdminUserTransactionPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.back()}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-gray-200 hover:bg-white/10 transition"
+              className="cursor-pointer inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-gray-200 hover:bg-white/10 transition"
               aria-label="Go back"
             >
-              <i className="fa-solid fa-arrow-left"></i>
+              <i className="fa-solid fa-chevron-left"></i>
             </button>
             <div>
               <p className="text-xs text-gray-400 font-medium">Admin panel</p>
@@ -110,7 +107,7 @@ export default function AdminUserTransactionPage() {
                 <p className="text-sm text-gray-400">User details</p>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <span className="rounded-full bg-white/5 px-3 py-1 text-sm text-gray-300">
-                    {user?.role ?? "—"}
+                    {user?.username ?? "—"}
                   </span>
                   <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-semibold text-emerald-300">
                     ₹{user?.balance?.toFixed(2) ?? "0.00"}
@@ -137,44 +134,62 @@ export default function AdminUserTransactionPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {transactions.map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="rounded-[26px] border border-white/10 bg-[#0A0E17]/90 p-4 shadow-xl shadow-black/20"
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-base font-semibold text-white">
-                          {tx.title || tx.type}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          {tx.subtitle ||
-                            tx.description ||
-                            "No details available"}
-                        </p>
+                {transactions.map((tx) => {
+                  const isCredit = tx.type.startsWith("win");
+                  const isDebit = tx.type === "entry";
+
+                  return (
+                    <div
+                      key={tx.id}
+                      className="rounded-[26px] border border-white/10 bg-[#0A0E17]/90 p-4 shadow-xl shadow-black/20"
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-base font-semibold text-white">
+                            {tx.title || tx.type}
+                          </p>
+
+                          <p className="text-sm text-gray-400">
+                            {tx.subtitle ||
+                              tx.description ||
+                              "No details available"}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <p
+                            className={`text-base font-semibold ${
+                              isCredit
+                                ? "text-green-400"
+                                : isDebit
+                                  ? "text-red-400"
+                                  : "text-white"
+                            }`}
+                          >
+                            {isCredit ? "+" : isDebit ? "-" : ""}₹
+                            {Number(tx.amount).toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-base font-semibold text-white">
-                          ₹{tx.amount.toFixed(2)}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          {new Date(tx.createdAt).toLocaleString()}
-                        </p>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-300">
+                        <span
+                          className={`rounded-full px-2 py-1 ${
+                            tx.status === "completed"
+                              ? "bg-green-500/10 text-green-300"
+                              : "bg-amber-500/10 text-amber-300"
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
+
+                        <span className="rounded-full bg-white/5 px-2 py-1">
+                          Type: {tx.type.replace("_", " ")}
+                        </span>
                       </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-300">
-                      <span className="rounded-full bg-white/5 px-2 py-1">
-                        {/* Balance: ₹{tx.balanceAfter.toFixed(2)} */}
-                      </span>
-                      <span className="rounded-full bg-amber-500/10 px-2 py-1 text-amber-300">
-                        {tx.status}
-                      </span>
-                      <span className="rounded-full bg-white/5 px-2 py-1">
-                        Type: {tx.type}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>

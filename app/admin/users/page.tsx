@@ -17,45 +17,10 @@ type User = {
   balance: number;
 };
 
-const usersColumns = [
-  { label: "Name", key: "name" },
-  { label: "Email", key: "email" },
-  { label: "Mobile", key: "mobile" },
-  { label: "Username", key: "username" },
-  { label: "Role", key: "role" },
-  { label: "Balance", key: "balance" },
-  { label: "Created At", key: "createdAt" },
-];
-
-const buildCsv = (rows: any[], headers: { label: string; key: string }[]) => {
-  const headerLine = headers.map((header) => header.label).join(",");
-  const lines = rows.map((row) =>
-    headers
-      .map((header) => {
-        const value = row[header.key] ?? "";
-        const stringValue = typeof value === "string" ? value : String(value);
-        return `"${stringValue.replace(/"/g, '""')}"`;
-      })
-      .join(","),
-  );
-  return [headerLine, ...lines].join("\n");
-};
-
-const downloadFile = (content: string, filename: string) => {
-  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -76,9 +41,29 @@ export default function AdminUsersPage() {
     loadUsers();
   }, [loadUsers]);
 
-  const exportUsersCsv = () => {
-    const csv = buildCsv(users, usersColumns);
-    downloadFile(csv, "users-balance-report.csv");
+  const exportUsersCsv = async () => {
+    try {
+      setExporting(true);
+      setError(null);
+
+      const response: any = await httpService.get("/user/export/transactions", {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "users-transactions-report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError(err?.message || "Failed to export users");
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -129,10 +114,10 @@ export default function AdminUsersPage() {
               </div>
               <button
                 onClick={exportUsersCsv}
-                disabled={users.length === 0}
+                disabled={users.length === 0 || exporting}
                 className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-[#FF5C00] px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Export users CSV
+                {exporting ? "Exporting..." : "Export users CSV"}
               </button>
             </div>
             <p className="mt-3 text-sm text-gray-400">
