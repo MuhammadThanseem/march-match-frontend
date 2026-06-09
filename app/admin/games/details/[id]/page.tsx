@@ -196,11 +196,7 @@ export default function JoinGame() {
               <p className="text-xs text-gray-400">Total Pot</p>
               <p className="text-3xl font-bold text-green-400">
                 $
-                {(
-                  (game?.entryFee || 0) *
-                  (game?.totalSlots || 0) *
-                  1.1
-                ).toFixed(2)}
+                {game.potAmount}
               </p>
             </div>
           </section>

@@ -23,6 +23,8 @@ export default function JoinGame() {
     seconds: number;
   } | null>(null);
 
+  const isFull = game?.joinedSlots >= game?.totalSlots;
+
   useEffect(() => {
     if (id) {
       loadGameDetails(id as string);
@@ -84,6 +86,18 @@ export default function JoinGame() {
   }
 
   const handleJoinGame = async () => {
+    if (!game) return;
+
+    if (isFull) {
+      toast.error("This game is already full.");
+      return;
+    }
+
+    if (game.status !== "upcoming") {
+      toast.error("You can only join upcoming games.");
+      return;
+    }
+
     if (wallet.balance < game.entryFee) {
       toast.error("Insufficient balance");
       return;
@@ -203,11 +217,7 @@ export default function JoinGame() {
               <p className="text-xs text-gray-400">Total Pot</p>
               <p className="text-3xl font-bold text-green-400">
                 $
-                {(
-                  (game?.entryFee || 0) *
-                  (game?.totalSlots || 0) *
-                  1.1
-                ).toFixed(2)}
+                {game.potAmount}
               </p>
             </div>
           </section>
@@ -329,6 +339,29 @@ export default function JoinGame() {
               </div>
             )}
           </section>
+
+          {isFull && game?.participants?.length > 0 && (
+            <section className="bg-[#111827] border border-[#1F2937] rounded-2xl p-4 mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold">Full Game Participants</h3>
+                <span className="text-[10px] uppercase font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded-full">
+                  FULL
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {game.participants.map((player: any, index: number) => (
+                  <div
+                    key={`${player.username}-${player.assignedNumber}-${index}`}
+                    className="rounded-xl bg-[#0A0E17] p-3 border border-gray-800"
+                  >
+                    <p className="text-xs text-gray-400">{player.username}</p>
+                    <p className="text-sm font-bold">#{player.assignedNumber}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* CTA */}
@@ -339,6 +372,13 @@ export default function JoinGame() {
               className="cursor-pointer w-full bg-green-500 py-4 rounded-2xl text-lg flex justify-center items-center gap-2 hover:bg-green-600 transition shadow-lg"
             >
               View Entry
+            </button>
+          ) : isFull ? (
+            <button
+              className="cursor-not-allowed w-full bg-gray-700 py-4 rounded-2xl text-lg flex justify-center items-center gap-2 text-gray-300 transition shadow-lg"
+              disabled
+            >
+              Game Full
             </button>
           ) : (
             <button

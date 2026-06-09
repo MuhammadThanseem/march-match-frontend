@@ -27,6 +27,9 @@ export default function GameDetailsPage() {
   const [tipoffReached, setTipoffReached] = useState(false);
   const winnersTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const isFull = game?.joinedSlots >= game?.totalSlots;
+  const participants = game?.participants || [];
+
   useEffect(() => {
     if (id) {
       loadGameDetails(id as string);
@@ -302,6 +305,17 @@ export default function GameDetailsPage() {
               </div>
             </div>
 
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <span className="text-xs text-gray-400">
+                Joined: {game.joinedSlots}/{game.totalSlots}
+              </span>
+              {isFull ? (
+                <span className="text-[10px] uppercase font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded-full">
+                  FULL
+                </span>
+              ) : null}
+            </div>
+
             {/* SCORE LOGIC */}
             <div className="bg-[#0F172A] border border-[#1F2937] rounded-xl p-3 flex justify-between">
               <div>
@@ -371,6 +385,29 @@ export default function GameDetailsPage() {
               wins
             </p>
           </section>
+
+          {participants.length > 0 && (
+            <section className="bg-[#111827] border border-[#1F2937] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-white">Players</h3>
+                <span className="text-xs text-gray-400">
+                  {game.joinedSlots}/{game.totalSlots}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {participants.map((player: any, index: number) => (
+                  <div
+                    key={`${player.username}-${player.assignedNumber}-${index}`}
+                    className="rounded-xl bg-[#0A0E17] p-3 border border-gray-800"
+                  >
+                    <p className="text-xs text-gray-400">{player.username}</p>
+                    <p className="text-sm font-bold">#{player.assignedNumber}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* TIMELINE */}
           <section className="bg-[#111827] border border-[#1F2937] rounded-2xl p-5">

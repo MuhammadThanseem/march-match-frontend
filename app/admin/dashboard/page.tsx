@@ -330,14 +330,6 @@ export default function SuperAdminHomePage() {
     );
   }
 
-  type Checkpoint = {
-    type: string; // "timeout" | "halftime" | "final"
-    sequence: number; // 1–10
-    rewardAmount: number;
-    timeRemaining?: string; // "03:12"
-    progress?: number; // 0–100
-  };
-
   function CheckpointCard({
     checkpoint,
     nextCheckpoint,

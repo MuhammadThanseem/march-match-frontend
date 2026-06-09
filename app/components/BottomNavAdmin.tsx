@@ -17,9 +17,11 @@ export default function BottomNavAdmin() {
       "
     >
       <div className="flex justify-between items-center px-4">
-        
         {/* Home */}
-        <Link href="/admin/dashboard" className="flex flex-col items-center gap-1">
+        <Link
+          href="/admin/dashboard"
+          className="flex flex-col items-center gap-1"
+        >
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition
               ${isActive("/admin/dashboard") ? "bg-[#00F0FF]/10" : "hover:bg-[#1F2937]"}
@@ -40,6 +42,28 @@ export default function BottomNavAdmin() {
           </span>
         </Link>
 
+        {/* Users */}
+        <Link href="/admin/users" className="flex flex-col items-center gap-1">
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition
+              ${isActive("/admin/users") ? "bg-[#00F0FF]/10" : "hover:bg-[#1F2937]"}
+            `}
+          >
+            <i
+              className={`fa-solid fa-users text-lg
+                ${isActive("/admin/users") ? "text-[#00F0FF]" : "text-gray-500"}
+              `}
+            ></i>
+          </div>
+          <span
+            className={`text-[10px]
+              ${isActive("/admin/users") ? "text-[#00F0FF]" : "text-gray-500"}
+            `}
+          >
+            Users
+          </span>
+        </Link>
+
         {/* Center Button (Join Game) */}
         <div className="relative -top-5">
           <Link
@@ -52,9 +76,36 @@ export default function BottomNavAdmin() {
           </Link>
         </div>
 
+        {/* Reports */}
+        <Link
+          href="/admin/reports"
+          className="flex flex-col items-center gap-1"
+        >
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition
+              ${isActive("/admin/reports") ? "bg-[#00F0FF]/10" : "hover:bg-[#1F2937]"}
+            `}
+          >
+            <i
+              className={`fa-solid fa-chart-bar text-lg
+                ${isActive("/admin/reports") ? "text-[#00F0FF]" : "text-gray-500"}
+              `}
+            ></i>
+          </div>
+          <span
+            className={`text-[10px]
+              ${isActive("/admin/reports") ? "text-[#00F0FF]" : "text-gray-500"}
+            `}
+          >
+            Reports
+          </span>
+        </Link>
 
         {/* Profile */}
-        <Link href="/admin/profile" className="flex flex-col items-center gap-1">
+        <Link
+          href="/admin/profile"
+          className="flex flex-col items-center gap-1"
+        >
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition
               ${isActive("/admin/profile") ? "bg-[#00F0FF]/10" : "hover:bg-[#1F2937]"}

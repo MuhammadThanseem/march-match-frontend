@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import BottomNavAdmin from "@/app/components/BottomNavAdmin";
 import httpService from "@/app/utils/httpService";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -77,22 +78,38 @@ export default function ProfilePage() {
     <>
       <main className="relative z-10 w-full max-w-md mx-auto min-h-[840px] h-screen mx-auto flex flex-col overflow-hidden shadow-2xl  bg-[#0A0E17] text-white">
         {/* Header */}
-        <header className="w-full px-5 pt-12 pb-4 flex justify-between items-center sticky top-0 bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/20">
+        <header className="fixed top-0 left-0 right-0 max-w-md mx-auto px-5 pt-12 pb-4 flex justify-between items-center bg-[#0A0E17]/90 backdrop-blur-md border-b border-white/5 z-50">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-full bg-[#1F2937] border border-white/20 hover:bg-gray-800"
-            >
-              <i className="fa-solid fa-chevron-left"></i>
+            <div className="relative">
+              <Image
+                src="/images/profile.jpg"
+                width={40}
+                height={40}
+                className="rounded-full border-2 border-[#00F0FF] object-cover"
+                alt="Profile"
+              />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#00FF66] rounded-full border-2 border-[#0A0E17]"></div>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 font-medium">Admin panel</p>
+              <h2 className="text-sm font-bold">Profile</h2>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="px-3 py-1.5 rounded-full bg-white/5 flex items-center gap-2 backdrop-blur-md">
+              <i className="fa-solid fa-wallet text-[#00FF66] text-xs"></i>
+              <span className="text-sm font-bold">₹0.00</span>
+            </div>
+            <button className="relative w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+              <i className="fa-regular fa-bell"></i>
+              <span className="absolute top-2 right-2.5 w-2 h-2 bg-[#FF5C00] rounded-full"></span>
             </button>
-            <h1 className="text-xl font-bold text-brand-text font-display">
-              Profile
-            </h1>
           </div>
         </header>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto pb-32 px-4 mt-4 space-y-6">
+        <div className="flex-1 overflow-y-auto pb-28 w-full mt-32 px-5">
           {/* ================== USER CARD ================== */}
           <section className="clean-card p-5 flex flex-col items-center text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue/10 rounded-full blur-3xl"></div>
@@ -117,7 +134,7 @@ export default function ProfilePage() {
           </section>
 
           {/* ======================= ACCOUNT DETAILS ======================= */}
-          <section className="clean-card overflow-hidden">
+          <section className="clean-card overflow-hidden mt-4">
             <div className="p-4 border-b border-gray-800 bg-navy-800/50">
               <h3 className="text-sm font-bold uppercase">
                 Account Information

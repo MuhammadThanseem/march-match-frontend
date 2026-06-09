@@ -550,8 +550,8 @@ function UpcomingGames({ upcomingGames, getTeamCode }: any) {
               team2={game.teamBName}
               short2={getTeamCode(game.teamBName)}
               time={new Date(game.startTime).toLocaleString()}
-              amount={game.entryFee}
               entryFee={game.entryFee}
+              joinedSlots={game.joinedSlots}
               pendingSlots={game.pendingSlots}
               totalSlots={game.totalSlots}
             />
@@ -572,9 +572,12 @@ function GameCard({
   short2,
   time,
   entryFee,
+  joinedSlots,
   pendingSlots,
   totalSlots,
 }: any) {
+  const isFull = joinedSlots >= totalSlots;
+
   return (
     <div className="rounded-2xl p-3 flex justify-between bg-white/5 hover:bg-[#1F2937]/60 transition border border-transparent hover:border-gray-600">
       <div className="flex-1">
@@ -594,22 +597,37 @@ function GameCard({
 
         {/* Slots Progress */}
         <div className="mt-3">
-          <span className="text-xs font-semibold text-orange-400">
-             🎟️ Only {pendingSlots} slots left
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-300">
+              {joinedSlots}/{totalSlots} players
+            </span>
+            {isFull ? (
+              <span className="text-[10px] font-bold uppercase text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
+                FULL
+              </span>
+            ) : null}
+          </div>
+
+          {!isFull ? (
+            <span className="text-xs font-semibold text-orange-400">
+              🎟️ Only {pendingSlots} slots left
+            </span>
+          ) : null}
         </div>
       </div>
 
       <div className="flex flex-col items-end gap-2 ml-4">
-        <span className="text-xs text-gray-400">
-          {new Date(time).toLocaleString()}
-        </span>
+        <span className="text-xs text-gray-400">{time}</span>
 
         <Link
-          href={`/join-game/${id}`}
-          className="bg-[#1F2937] hover:bg-[#00F0FF] hover:text-black px-4 py-1.5 text-xs font-bold rounded-lg transition"
+          href={isFull ? `/game-details/${id}` : `/join-game/${id}`}
+          className={`px-4 py-1.5 text-xs font-bold rounded-lg transition ${
+            isFull
+              ? "bg-gray-700 text-gray-300 cursor-pointer"
+              : "bg-[#1F2937] hover:bg-[#00F0FF] hover:text-black"
+          }`}
         >
-          Join ${entryFee}
+          {isFull ? "View" : `Join $${entryFee}`}
         </Link>
       </div>
     </div>
